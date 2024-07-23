@@ -5,14 +5,8 @@ import {
   HttpApi,
   HttpMethod,
 } from "aws-cdk-lib/aws-apigatewayv2";
-import {
-  HttpIamAuthorizer,
-  HttpUserPoolAuthorizer,
-} from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import { auth } from "./auth/resource";
-import { data } from "./data/resource";
 
 
 
@@ -48,8 +42,6 @@ export const claimFounderPassFunction = defineFunction({
 
 // set up the backend
 const backend = defineBackend({
-  auth,
-  data,
   getUserFunction,
   createUserFunction,
   verificationEmailFunction,
