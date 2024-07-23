@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.13",
+    "ajv": "^8.17.1",
     "aws-amplify": "^6.4.0",
+    "mongoose": "^5.7.5",
     "next": "14.1.1",
     "react": "^18",
     "react-dom": "^18"
