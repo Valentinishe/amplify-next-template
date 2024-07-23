@@ -10,8 +10,7 @@ import {
   HttpUserPoolAuthorizer,
 } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
-import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import {  } from "./functions/users/resource";
+import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";";
 import { auth } from "./auth/resource";
 import { data } from "./data/resource";
 
@@ -21,16 +20,40 @@ import { data } from "./data/resource";
 // define functions
 export const getUserFunction = defineFunction({
   name: "getUser",
-  entry: "./functions/users/getUser.ts",
+  entry: "./functions/getUser.ts",
   timeoutSeconds: 20,
   memoryMB: 512,
 });
 
+export const createUserFunction = defineFunction({
+  name: "createUser",
+  entry: "./functions/createUser.ts",
+  timeoutSeconds: 20,
+  memoryMB: 512,
+});
 
+export const verificationEmailFunction = defineFunction({
+  name: "verificationEmail",
+  entry: "./functions/verificationEmail.ts",
+  timeoutSeconds: 20,
+  memoryMB: 512,
+});
+
+export const claimFounderPassFunction = defineFunction({
+  name: "claimFounderPass",
+  entry: "./functions/claimFounderPass.ts",
+  timeoutSeconds: 20,
+  memoryMB: 512,
+});
+
+// set up the backend
 const backend = defineBackend({
   auth,
   data,
   getUserFunction,
+  createUserFunction,
+  verificationEmailFunction,
+  claimFounderPassFunction,
 });
 
 // create a new API stack
@@ -46,6 +69,8 @@ const httpApi = new HttpApi(apiStack, "HttpApi", {
       CorsHttpMethod.POST,
       CorsHttpMethod.PUT,
       CorsHttpMethod.DELETE,
+      CorsHttpMethod.HEAD,
+      CorsHttpMethod.OPTIONS,
     ],
     // Restrict this to domains you trust
     allowOrigins: ["*"],
@@ -72,22 +97,51 @@ const httpApi = new HttpApi(apiStack, "HttpApi", {
 
 
 
-// definde lambdas integration
+// define lambdas integration
 const getUserLambda = new HttpLambdaIntegration(
   "LambdaIntegration",
   backend.getUserFunction.resources.lambda
 );
 
+const createUserLambda = new HttpLambdaIntegration(
+  "LambdaIntegration",
+  backend.createUserFunction.resources.lambda
+);
 
+const verificationEmailLambda = new HttpLambdaIntegration(
+  "LambdaIntegration",
+  backend.verificationEmailFunction.resources.lambda
+);
 
-
+const claimFounderPassLambda = new HttpLambdaIntegration(
+  "LambdaIntegration",
+  backend.claimFounderPassFunction.resources.lambda
+);
 
 
 // added routes to the API
 httpApi.addRoutes({
   path: "/users",
-  methods: [HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.HEAD ],
+  methods: [HttpMethod.POST, HttpMethod.OPTIONS, HttpMethod.HEAD ],
+  integration: createUserLambda,
+});
+
+httpApi.addRoutes({
+  path: "/users/{id}",
+  methods: [HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.HEAD],
   integration: getUserLambda,
+});
+
+httpApi.addRoutes({
+  path: "/users/{id}/verification/{code}",
+  methods: [HttpMethod.PUT, HttpMethod.OPTIONS, HttpMethod.HEAD],
+  integration: getUserLambda,
+});
+
+httpApi.addRoutes({
+  path: "/users/{id}/pass",
+  methods: [HttpMethod.POST, HttpMethod.OPTIONS, HttpMethod.HEAD],
+  integration: claimFounderPassLambda,
 });
 
 // create a new IAM policy to allow Invoke access to the API
