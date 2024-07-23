@@ -5,7 +5,7 @@ export const handler = async (event: any) => {
   console.log('event', event);
 
   return {
-    statusCode: 200,
+    status: 200,
     body: event,
   };
 };
