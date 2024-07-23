@@ -137,22 +137,22 @@ httpApi.addRoutes({
 });
 
 // create a new IAM policy to allow Invoke access to the API
-const apiPolicy = new Policy(apiStack, "ApiPolicy", {
-  statements: [
-    new PolicyStatement({
-      actions: ["execute-api:Invoke"],
-      resources: [
-        `${httpApi.arnForExecuteApi("*", "/users")}`,
-        `${httpApi.arnForExecuteApi("*", "/users/*")}`,
-        // `${httpApi.arnForExecuteApi("*", "/cognito-auth-path")}`,
-      ],
-    }),
-  ],
-});
+// const apiPolicy = new Policy(apiStack, "ApiPolicy", {
+//   statements: [
+//     new PolicyStatement({
+//       actions: ["execute-api:Invoke"],
+//       resources: [
+//         `${httpApi.arnForExecuteApi("*", "/users")}`,
+//         `${httpApi.arnForExecuteApi("*", "/users/*")}`,
+//         // `${httpApi.arnForExecuteApi("*", "/cognito-auth-path")}`,
+//       ],
+//     }),
+//   ],
+// });
 
 // attach the policy to the authenticated and unauthenticated IAM roles
-backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(apiPolicy);
-backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiPolicy);
+// backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(apiPolicy);
+// backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiPolicy);
 
 // add outputs to the configuration file
 backend.addOutput({
